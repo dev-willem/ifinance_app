@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Login - IFinance{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="flex-container">
+        <!-- Lado esquerdo -->
+        <div class="flex-item login-bg">
+            <a href="{{ url_for('main.index') }}">
+                <img src="{{ url_for('static', filename='img/logo-login.svg') }}" class="logo-instituicao" alt="Logo IFinance" />
+            </a>
+            <p>Bem-vindo de volta! Acesse sua conta para continuar.</p>
+            <img src="{{ url_for('static', filename='img/logo-login.svg') }}" class="login-ilustracao"
+                alt="Ilustração representando login no sistema" />
+        </div>
+
+        <!-- Formulário de Login -->
+        <div class="form-login flex-item">
+            <form method="post" class="h-100 flex jc-center column">
+                <div>
+                    <h2>Login</h2>
+                    <h3>Acesse sua conta:</h3>
+                </div>
+                <div>
+                    <!-- Email -->
+                    <div class="form-row">
+                        <label for="id_email" class="required">E-mail:</label>
+                        <input type="email" name="email" id="id_email" placeholder="exemplo@email.com" required>
+                    </div>
+
+                    <!-- Senha -->
+                    <div class="form-row">
+                        <label for="id_password" class="required">Senha:</label>
+                        <input type="password" name="password" id="id_password" placeholder="Digite sua senha"
+                            required />
+                    </div>
+
+                    <!-- Botão -->
+                    <div class="submit-row">
+                        <input type="submit" class="btn success" value="Entrar" />
+                    </div>
+                </div>
+
+                <!-- Link para cadastro -->
+                <div class="form-row">
+                    <p>Não tem uma conta? <a href="{{ url_for('main.register') }}">Cadastre-se</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

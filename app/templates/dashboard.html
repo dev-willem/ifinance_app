@@ -1,0 +1,67 @@
+{% extends "base_authenticated.html" %} {% block title %}Dashboard - IFinance{%
+endblock %}{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='/css/simulate.css') }}"
+/>
+{% endblock %} {% block main_content %}
+<div class="container">
+  <!-- Tabs -->
+  <div class="tabs">
+    <button onclick="showForm('sac')" class="tab-btn active">SAC</button>
+    <button onclick="showForm('price')" class="tab-btn">PRICE</button>
+    <button onclick="showForm('credito')" class="tab-btn">Crédito</button>
+    <button onclick="showForm('lucro')" class="tab-btn">Lucro</button>
+    <button onclick="showForm('cet')" class="tab-btn">CET</button>
+  </div>
+
+  <!-- SAC -->
+  <div id="sac" class="form-section">
+    {% include "forms_templates/sac.html" %}
+  </div>
+
+  <!-- PRICE -->
+  <div id="price" class="form-section hidden">
+    {% include "forms_templates/price.html" %}
+  </div>
+
+  <!-- Crédito -->
+  <div id="credito" class="form-section hidden">
+    {% include "forms_templates/credito.html" %}
+  </div>
+
+  <!-- Lucro -->
+  <div id="lucro" class="form-section hidden">
+    {% include "forms_templates/lucro.html" %}
+  </div>
+
+  <!-- CET -->
+  <div id="cet" class="form-section hidden">
+    {% include "forms_templates/cet.html" %}
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+
+<script>
+  function showForm(id) {
+    // Remove classe "active" de todos os botões
+    document
+      .querySelectorAll(".tab-btn")
+      .forEach((btn) => btn.classList.remove("active"));
+
+    // Esconde todas as seções de formulário
+    document
+      .querySelectorAll(".form-section")
+      .forEach((f) => f.classList.add("hidden"));
+
+    // Mostra a seção selecionada
+    document.getElementById(id).classList.remove("hidden");
+    event.target.classList.add("active");
+  }
+
+  // Inicializa a primeira aba como ativa
+  document.addEventListener("DOMContentLoaded", function () {
+    document.querySelector(".tab-btn").classList.add("active");
+  });
+</script>
+{% endblock %}

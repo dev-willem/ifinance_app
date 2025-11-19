@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}IFinance - Simuladores Financeiros{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #006400 0%, #28a745 100%);
+        color: white;
+        padding: 80px 20px;
+        text-align: center;
+    }
+
+    .hero-title {
+        font-size: 3rem;
+        margin-bottom: 20px;
+        font-weight: 700;
+    }
+
+    .hero-subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+        opacity: 0.9;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-hero {
+        padding: 15px 30px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background-color: white;
+        color: #006400;
+    }
+
+    .btn-primary:hover {
+        background-color: #f8f9fa;
+        transform: translateY(-2px);
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        color: white;
+        border: 2px solid white;
+    }
+
+    .btn-outline:hover {
+        background-color: white;
+        color: #006400;
+        transform: translateY(-2px);
+    }
+
+    .features-section {
+        padding: 80px 20px;
+        background-color: #f8f9fa;
+    }
+
+    .features-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .features-title {
+        text-align: center;
+        font-size: 2.5rem;
+        color: #333;
+        margin-bottom: 50px;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 40px;
+    }
+
+    .feature-card {
+        background: white;
+        padding: 40px 30px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 20px;
+        color: #006400;
+    }
+
+    .feature-title {
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .feature-description {
+        color: #666;
+        line-height: 1.6;
+    }
+
+    .cta-section {
+        background: linear-gradient(135deg, #28a745 0%, #006400 100%);
+        color: white;
+        padding: 80px 20px;
+        text-align: center;
+    }
+
+    .cta-title {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        font-weight: 700;
+    }
+
+    .cta-subtitle {
+        font-size: 1.2rem;
+        margin-bottom: 40px;
+        opacity: 0.9;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1rem;
+        }
+
+        .hero-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .features-title {
+            font-size: 2rem;
+        }
+
+        .cta-title {
+            font-size: 2rem;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <h1 class="hero-title">IFinance</h1>
+        <p class="hero-subtitle">
+            Simuladores financeiros completos para SAC, PRICE, Crédito, Lucro e CET. 
+            Tome decisões financeiras mais inteligentes com nossas ferramentas profissionais.
+        </p>
+        <div class="hero-actions">
+            <a href="{{ url_for('main.simulate') }}" class="btn-hero btn-primary">Começar a Simular</a>
+            <a href="{{ url_for('main.login') }}" class="btn-hero btn-outline">Fazer Login</a>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="features-container">
+        <h2 class="features-title">Nossos Simuladores</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">SAC</h3>
+                <p class="feature-description">
+                    Sistema de Amortização Constante - ideal para quem quer pagar menos juros ao longo do tempo.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">💰</div>
+                <h3 class="feature-title">PRICE</h3>
+                <p class="feature-description">
+                    Tabela Price - parcelas fixas durante todo o período, facilitando o planejamento financeiro.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">💳</div>
+                <h3 class="feature-title">Crédito</h3>
+                <p class="feature-description">
+                    Simulação completa de empréstimos e financiamentos com diferentes condições.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📈</div>
+                <h3 class="feature-title">Lucro</h3>
+                <p class="feature-description">
+                    Análise de rentabilidade considerando receitas, custos fixos, variáveis e impostos.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">CET</h3>
+                <p class="feature-description">
+                    Custo Efetivo Total - veja o custo real do crédito incluindo todas as taxas.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3 class="feature-title">Histórico</h3>
+                <p class="feature-description">
+                    Acompanhe todas as suas simulações, compare resultados e tome decisões baseadas em dados.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <h2 class="cta-title">Pronto para Começar?</h2>
+        <p class="cta-subtitle">
+            Acesse nossos simuladores e tome decisões financeiras mais inteligentes. 
+            Cadastre-se gratuitamente e tenha acesso completo a todas as funcionalidades.
+        </p>
+        <div class="hero-actions">
+            <a href="{{ url_for('main.register') }}" class="btn-hero btn-primary">Cadastrar-se Grátis</a>
+            <a href="{{ url_for('main.simulate') }}" class="btn-hero btn-outline">Ver Simuladores</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

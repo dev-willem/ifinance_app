@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Página Não Encontrada - IFinance{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .error-code {
+        font-size: 6rem;
+        font-weight: bold;
+        color: #dc3545;
+        margin-bottom: 20px;
+    }
+
+    .error-title {
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .error-message {
+        font-size: 1.1rem;
+        color: #666;
+        margin-bottom: 30px;
+        max-width: 500px;
+    }
+
+    .error-actions {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 500;
+        transition: background-color 0.3s;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #545b62;
+    }
+
+    @media (max-width: 768px) {
+        .error-code {
+            font-size: 4rem;
+        }
+
+        .error-title {
+            font-size: 1.5rem;
+        }
+
+        .error-actions {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-code">404</div>
+    <h1 class="error-title">Página Não Encontrada</h1>
+    <p class="error-message">
+        A página que você está procurando não existe ou foi movida. 
+        Verifique o endereço ou navegue pelas opções abaixo.
+    </p>
+    <div class="error-actions">
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary">Página Inicial</a>
+        <a href="{{ url_for('main.simulate') }}" class="btn btn-secondary">Simuladores</a>
+    </div>
+</div>
+{% endblock %}

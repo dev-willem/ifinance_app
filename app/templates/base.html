@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}IFinance{% endblock %}</title>
+    
+    <!-- CSS Global -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/global.css') }}">
+    
+    <!-- CSS específico da página -->
+    {% block extra_css %}{% endblock %}
+    
+    <!-- Meta tags -->
+    <meta name="description" content="{% block description %}Sistema de simulação financeira IFinance{% endblock %}">
+</head>
+
+<body>
+    <!-- Mensagens Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">
+                        <span>{{ message }}</span>
+                        <button onclick="this.parentElement.style.display='none'" class="flash-close">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Conteúdo principal -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Scripts específicos da página -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,19 @@
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='/css/sidebar.css') }}">
+{% endblock %}
+<div class="sidebar w-20">
+    <div>
+        <div class="profile">
+            <img src="{{ url_for('static', filename='img/logo-login.svg') }}" alt="User Icon">
+            <p>{{ session.user_name or 'Usuário' }}</p>
+        </div>
+        <div class="menu">
+            <a href="{{ url_for('main.dashboard') }}"><span>🏠</span> <span>Início</span></a>
+            <a href="{{ url_for('main.history') }}"><span>🗂️</span> <span>Histórico</span></a>
+            <a href="{{ url_for('main.profile') }}"><span>👤</span> <span>Perfil</span></a>
+        </div>
+    </div>
+    <div class="logout">
+        <a href="{{ url_for('main.logout_user') }}" style="text-decoration: none; color: black;">⏎ Sair</a>
+    </div>
+</div>

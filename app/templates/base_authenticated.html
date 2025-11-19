@@ -1,0 +1,16 @@
+{% extends "base.html" %} {% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='/css/baseauth.css') }}"
+/>
+{% endblock %} {% block content %}
+<div class="flex w-100 vh-100">
+  <!-- Sidebar -->
+  {% include 'sidebar.html' %}
+
+  <!-- Main Content -->
+  <div class="master">
+    <div class="main">{% block main_content %}{% endblock %}</div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+/* ====== LADO ESQUERDO LOGIN/CADASTRO ====== */
+.login-bg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: #eaf5ea;
+}
+
+.login-bg .logo-instituicao {
+    max-width: 250px;
+    margin-bottom: 1rem;
+}
+
+.login-bg p {
+    font-size: 1rem;
+    margin: 1rem 0;
+    color: #444;
+}
+
+.login-bg .login-ilustracao {
+    max-width: 300px;
+    margin-top: 1.5rem;
+}
+
+/* ====== FORMULÁRIO LOGIN/CADASTRO ====== */
+
+.form-login h2 {
+    font-size: 1.5rem;
+    margin-bottom: .5rem;
+    color: #006400;
+}
+
+.form-login h3 {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    color: #666;
+}
+
+.form-row {
+    margin-bottom: 1rem;
+}
+
+label.required::after {
+    content: " *";
+    color: red;
+}
+
+input:not([type="checkbox"]) {
+    width: 100%;
+    padding: .6rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: .95rem;
+}
+
+input:focus {
+    outline: none;
+    border-color: #006400;
+    box-shadow: 0 0 5px rgba(0, 100, 0, 0.3);
+}
+
+/* ====== CHECKBOX LOGIN/CADASTRO ====== */
+.form-row.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* ====== BOTÃO ESPECÍFICO DE FORMULÁRIO ====== */
+.submit-row {
+    margin-top: 1rem;
+}
+
+/* ====== LINK DE LOGIN/CADASTRO ====== */
+.form-row p {
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.form-row a {
+    color: #006400;
+    text-decoration: none;
+}
+
+.form-row a:hover {
+    text-decoration: underline;
+}

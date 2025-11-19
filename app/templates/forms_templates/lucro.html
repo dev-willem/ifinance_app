@@ -1,0 +1,45 @@
+<h2>SIMULAÇÃO DE LUCRO</h2>
+<form method="post" action="{{ url_for('main.simulate_profit') }}">
+  <div class="form-group">
+    <label for="receita">Receita (R$):</label>
+    <input
+      type="number"
+      name="revenue"
+      id="receita"
+      placeholder="Digite a receita prevista"
+      required
+    />
+  </div>
+  <div class="form-group">
+    <label for="custo-f">Custos Fixos (R$):</label>
+    <input
+      type="number"
+      name="fixed_costs"
+      id="custo-f"
+      placeholder="Digite os custos fixos"
+      required
+    />
+  </div>
+  <div class="form-group">
+    <label for="custo-v">Custos Variáveis (R$):</label>
+    <input
+      type="number"
+      name="variable_costs"
+      id="custo-v"
+      placeholder="Digite os custos variáveis"
+      required
+    />
+  </div>
+  <div class="form-group">
+    <label for="impostos">Impostos (%):</label>
+    <input
+      type="number"
+      step="0.01"
+      name="taxes"
+      id="impostos"
+      placeholder="Digite a alíquota de impostos"
+      required
+    />
+  </div>
+  <button type="submit" class="btn success">Simular</button>
+</form>

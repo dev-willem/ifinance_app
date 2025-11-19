@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastro - IFinance{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="wrapper">
+    <div class="flex-container">
+        <!-- Lado esquerdo -->
+        <div class="flex-item login-bg">
+            <a href="{{ url_for('main.index') }}">
+                <img src="{{ url_for('static', filename='img/logo-login.svg') }}"
+                    class="logo-instituicao"
+                    alt="Logo IFinance">
+            </a>
+            <p>Crie sua conta e faça parte da nossa comunidade.</p>
+            <img src="{{ url_for('static', filename='img/logo-login.svg') }}" class="login-ilustracao"
+                alt="Ilustração representando usuários cadastrando no sistema">
+        </div>
+
+        <!-- Formulário -->
+        <div class="form-login flex-item">
+            <form method="post">
+                <h2>Cadastro</h2>
+                <h3>Preencha seus dados para criar a conta:</h3>
+
+                <!-- Nome -->
+                <div class="form-row">
+                    <label for="id_nome" class="required">Nome completo:</label>
+                    <input type="text" name="nome" id="id_nome" placeholder="Digite seu nome" required>
+                </div>
+
+                <!-- Email -->
+                <div class="form-row">
+                    <label for="id_email" class="required">E-mail:</label>
+                    <input type="email" name="email" id="id_email" placeholder="exemplo@email.com" required>
+                </div>
+
+                <!-- Senha -->
+                <div class="form-row">
+                    <label for="id_password" class="required">Senha:</label>
+                    <input type="password" name="password" id="id_password" placeholder="Digite sua senha" required>
+                </div>
+
+                <!-- Confirmar Senha -->
+                <div class="form-row">
+                    <label for="id_password2" class="required">Confirmar senha:</label>
+                    <input type="password" name="password2" id="id_password2" placeholder="Repita sua senha" required>
+                </div>
+
+                <!-- Telefone -->
+                <div class="form-row">
+                    <label for="id_telefone">Telefone (opcional):</label>
+                    <input type="tel" name="telefone" id="id_telefone" placeholder="(00) 00000-0000">
+                </div>
+
+                <!-- Aceite -->
+                <div class="form-row checkbox">
+                    <input type="checkbox" id="id_termos" required>
+                    <label for="id_termos">Concordo com os <a href="#">termos de uso</a> e a <a href="#">política de privacidade</a>.</label>
+                </div>
+
+                <!-- Botão -->
+                <div class="submit-row">
+                    <input type="submit" class="btn success" value="Cadastrar">
+                </div>
+
+                <!-- Link Login -->
+                <div class="form-row">
+                    <p>Já possui conta? <a href="{{ url_for('main.login') }}">Faça login</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
