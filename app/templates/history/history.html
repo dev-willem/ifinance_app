@@ -1,95 +1,158 @@
-{% extends "base_authenticated.html" %} {% block title %}Histórico - IFinance{%
-endblock %} {% block main_content %}
+{% extends "base_authenticated.html" %}
 
-<div class="history-container flex column center">
+{% block title %}Histórico - IFinance{%endblock %}
+
+{% block main_content %}
+<div class="history-container">
     <div class="history-header">
         <h1>Histórico de Simulações</h1>
         <p>Visualize e gerencie todas as suas simulações financeiras</p>
     </div>
 
-    <!-- Filtros -->
-    <div class="history-filters">
-        <div class="filter-group">
-            <label for="filter-type">Tipo de Simulação:</label>
-            <select id="filter-type">
-                <option value="">Todos os tipos</option>
-                <option value="sac">SAC</option>
-                <option value="price">PRICE</option>
-                <option value="credito">Crédito</option>
-                <option value="lucro">Lucro</option>
-                <option value="cet">CET</option>
-            </select>
+    <div class="history-content">
+        <!-- Filtros -->
+        <div class="history-filters">
+            <div class="filter-group">
+                <label for="filter-type">Tipo de Simulação:</label>
+                <select id="filter-type">
+                    <option value="">Todos os tipos</option>
+                    <option value="sac">SAC</option>
+                    <option value="price">PRICE</option>
+                    <option value="credito">Crédito</option>
+                    <option value="lucro">Lucro</option>
+                    <option value="cet">CET</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="filter-date">Data:</label>
+                <input type="date" id="filter-date">
+            </div>
         </div>
-        
-        <div class="filter-group">
-            <label for="filter-date">Data:</label>
-            <input type="date" id="filter-date">
-        </div>
-        
-        <div class="filter-group">
-            <label for="filter-status">Status:</label>
-            <select id="filter-status">
-                <option value="">Todos</option>
-                <option value="completed">Concluída</option>
-                <option value="pending">Pendente</option>
-            </select>
-        </div>
-    </div>
 
-    <!-- Tabela de histórico -->
-    <div style="overflow-x: auto;">
-        <table class="history-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Tipo</th>
-                    <th>Valor Principal</th>
-                    <th>Taxa de Juros</th>
-                    <th>Prazo</th>
-                    <th>Data</th>
-                    <th>Status</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if simulations %}
-                    {% for sim in simulations %}
+        <!-- Tabela de histórico -->
+        <div style="overflow-x: auto;">
+            <table class="history-table">
+                <thead>
                     <tr>
-                        <td>{{ sim.id }}</td>
-                        <td>{{ sim.type_name }}</td>
-                        <td>R$ {{ "%.2f"|format(sim.principal_value) }}</td>
-                        <td>{{ sim.interest_rate }}%</td>
-                        <td>{{ sim.months }} meses</td>
-                        <td>{{ sim.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
-                        <td>
-                            <span class="status-badge status-completed">Concluída</span>
-                        </td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-small btn-view" onclick="viewSimulation({{ sim.id }})">Ver</button>
-                                <button class="btn-small btn-delete" onclick="deleteSimulation({{ sim.id }})">Excluir</button>
-                            </div>
-                        </td>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Valor Principal</th>
+                        <th>Taxa de Juros</th>
+                        <th>Prazo</th>
+                        <th>Data</th>
+                        <th>Ações</th>
                     </tr>
-                    {% endfor %}
-                {% else %}
-                    <tr>
-                        <td colspan="8" class="no-data">
-                            <p>Nenhuma simulação encontrada.</p>
-                            <p><a href="{{ url_for('main.simulate') }}">Faça sua primeira simulação</a></p>
-                        </td>
-                    </tr>
-                {% endif %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% if simulations %}
+                        {% for sim in simulations %}
+                        <tr>
+                            <td>{{ sim.id }}</td>
+                            <td>
+                                {% if sim.type_id == Type.SAC.value %}
+                                    SAC
+                                {% elif sim.type_id == Type.PRICE.value %}
+                                    PRICE
+                                {% else %}
+                                    N
+                                {% endif %}
+                            </td>
+                            <td>R$ {{ "%.2f"|format(sim.principal_value) }}</td>
+                            <td>{{ sim.interest_rate }}%</td>
+                            <td>{{ sim.months }} meses</td>
+                            <td>{{ sim.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-small btn-view" onclick="viewSimulation({{ sim.id }})">Ver</button>
+                                    <button class="btn-small btn-delete" onclick="deleteSimulation({{ sim.id }})">Excluir</button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="no-data">
+                                <p>Nenhuma simulação encontrada.</p>
+                                <p><a href="{{ url_for('main.simulate') }}">Faça sua primeira simulação</a></p>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}
 
+{% block extra_js %}
+<script>
+    function viewSimulation(id) {
+        // Redirecionar para visualização da simulação
+        window.location.href = `/simulation/${id}`;
+    }
+
+    function deleteSimulation(id) {
+        if (confirm('Tem certeza que deseja excluir esta simulação?')) {
+            fetch(`/api/operations/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Erro ao excluir simulação');
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Erro ao excluir simulação');
+            });
+        }
+    }
+
+    // Filtros
+    document.getElementById('filter-type').addEventListener('change', filterTable);
+    document.getElementById('filter-date').addEventListener('change', filterTable);
+
+    function filterTable() {
+        const typeFilter = document.getElementById('filter-type').value.toLowerCase();
+        const dateFilter = document.getElementById('filter-date').value;
+        
+        const rows = document.querySelectorAll('.history-table tbody tr');
+        
+        rows.forEach(row => {
+            if (row.querySelector('.no-data')) return; // Skip no-data row
+            
+            const typeCell = row.cells[1].textContent.toLowerCase();
+            const dateCell = row.cells[5].textContent;
+            
+            let show = true;
+            
+            if (typeFilter && !typeCell.includes(typeFilter)) {
+                show = false;
+            }
+            
+            if (dateFilter && !dateCell.includes(dateFilter.split('-').reverse().join('/'))) {
+                show = false;
+            }
+            
+            row.style.display = show ? '' : 'none';
+        });
+    }
+</script>
+{% endblock %}
+
 {% block extra_css %}
+{{ super() }}
 <style>
     .history-container {
-        margin-left: 300px;
+        padding: 20px;
+        max-width: 80%;
+        margin: 0 auto;
     }
 
     .history-header {
@@ -100,6 +163,12 @@ endblock %} {% block main_content %}
     .history-header h1 {
         color: #006400;
         margin-bottom: 10px;
+    }
+
+    .history-content {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
     }
 
     .history-filters {
@@ -155,23 +224,6 @@ endblock %} {% block main_content %}
         background-color: #f8f9fa;
     }
 
-    .status-badge {
-        padding: 4px 8px;
-        border-radius: 12px;
-        font-size: 0.8em;
-        font-weight: 500;
-    }
-
-    .status-completed {
-        background-color: #d4edda;
-        color: #155724;
-    }
-
-    .status-pending {
-        background-color: #fff3cd;
-        color: #856404;
-    }
-
     .action-buttons {
         display: flex;
         gap: 5px;
@@ -221,72 +273,4 @@ endblock %} {% block main_content %}
         }
     }
 </style>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    function viewSimulation(id) {
-        // Redirecionar para visualização da simulação
-        window.location.href = `/simulation/${id}`;
-    }
-
-    function deleteSimulation(id) {
-        if (confirm('Tem certeza que deseja excluir esta simulação?')) {
-            fetch(`/api/operations/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    location.reload();
-                } else {
-                    alert('Erro ao excluir simulação');
-                }
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                alert('Erro ao excluir simulação');
-            });
-        }
-    }
-
-    // Filtros
-    document.getElementById('filter-type').addEventListener('change', filterTable);
-    document.getElementById('filter-date').addEventListener('change', filterTable);
-    document.getElementById('filter-status').addEventListener('change', filterTable);
-
-    function filterTable() {
-        const typeFilter = document.getElementById('filter-type').value.toLowerCase();
-        const dateFilter = document.getElementById('filter-date').value;
-        const statusFilter = document.getElementById('filter-status').value.toLowerCase();
-        
-        const rows = document.querySelectorAll('.history-table tbody tr');
-        
-        rows.forEach(row => {
-            if (row.querySelector('.no-data')) return; // Skip no-data row
-            
-            const typeCell = row.cells[1].textContent.toLowerCase();
-            const dateCell = row.cells[5].textContent;
-            const statusCell = row.cells[6].textContent.toLowerCase();
-            
-            let show = true;
-            
-            if (typeFilter && !typeCell.includes(typeFilter)) {
-                show = false;
-            }
-            
-            if (dateFilter && !dateCell.includes(dateFilter.split('-').reverse().join('/'))) {
-                show = false;
-            }
-            
-            if (statusFilter && !statusCell.includes(statusFilter)) {
-                show = false;
-            }
-            
-            row.style.display = show ? '' : 'none';
-        });
-    }
-</script>
 {% endblock %}

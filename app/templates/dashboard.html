@@ -1,10 +1,6 @@
-{% extends "base_authenticated.html" %} {% block title %}Dashboard - IFinance{%
-endblock %}{% block extra_css %}
-<link
-  rel="stylesheet"
-  href="{{ url_for('static', filename='/css/simulate.css') }}"
-/>
-{% endblock %} {% block main_content %}
+{% extends "base_authenticated.html" %} 
+{% block title %}Dashboard - IFinance{%endblock %} 
+{% block main_content %}
 <div class="container">
   <!-- Tabs -->
   <div class="tabs">
@@ -40,8 +36,8 @@ endblock %}{% block extra_css %}
     {% include "forms_templates/cet.html" %}
   </div>
 </div>
-{% endblock %} {% block extra_js %}
-
+{% endblock %}
+{% block extra_js %}
 <script>
   function showForm(id) {
     // Remove classe "active" de todos os botões
@@ -64,4 +60,118 @@ endblock %}{% block extra_css %}
     document.querySelector(".tab-btn").classList.add("active");
   });
 </script>
+{% endblock %}
+
+{% block extra_css %} 
+{{ super() }}
+<style>
+  .container {
+      padding: 20px;
+      max-width: 80%;
+      margin: 0 auto;
+  }
+
+  .tabs {
+    margin-bottom: 20px;
+    margin-top: 10%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+  }
+
+  .tabs button {
+    box-shadow: 2px 0 5px 0 rgba(0, 0, 0, 0.2);
+    border: none;
+    margin: 0;
+    padding: 10px 15px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+  }
+
+  .tabs button:hover {
+    background-color: #a8a8a8;
+    transform: translateY(-2px);
+  }
+
+  .tabs button.active {
+    background-color: #28a745 !important;
+    color: white !important;
+    transform: translateY(-2px);
+  }
+
+  .form-section {
+    box-shadow: 2px 0 5px 0 rgba(0, 0, 0, 0.2);
+    padding: 30px;
+    border-radius: 10px;
+  }
+
+  .form-section h2 {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .form-group input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #999;
+  }
+
+  .form-section button {
+    width: 100%;
+    padding: 10px;
+    background-color: #ddd;
+    border: none;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .form-section button:hover {
+    background-color: #ccc;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .tab-btn.active {
+    background-color: #28a745 !important;
+    color: white !important;
+  }
+
+  .form-group {
+    margin-bottom: 12px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  .form-section input {
+    padding: 8px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .form-section input:focus {
+    outline: none;
+    border-color: #28a745;
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.3);
+  }
+</style>
 {% endblock %}

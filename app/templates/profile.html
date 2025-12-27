@@ -103,11 +103,12 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
+{% block extra_css %}
+{{ super() }}
 <style>
     .profile-container {
         padding: 20px;
-        max-width: 800px;
+        max-width: 80%;
         margin: 0 auto;
     }
 
