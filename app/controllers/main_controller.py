@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, session
 from functools import wraps
-from ..models import db, EntrySAC, User, TypeOperation
+from app import db
+from ..models import db, EntrySAC, User, TypeOperation, type_enum
 from ..controllers import *
 
 def login_required(f):
@@ -30,7 +31,7 @@ def dashboard():
 def simulate():
     """Página de simulação para usuários logados"""
     user = User.query.get(session['user_id'])
-    return render_template('simular.html', user=user)
+    return render_template('dashboard.html', user=user)
 
 @login_required
 def history():
@@ -38,13 +39,12 @@ def history():
     user_id = session['user_id']
     simulations = []
     try:
-        # Busca simulações do usuário logado
         simulations = EntrySAC.query.filter_by(user_id=user_id).order_by(EntrySAC.created_at.desc()).all()
     except Exception as e:
         print(f"Erro ao buscar simulações: {e}")
         flash('Erro ao carregar histórico', 'error')
     
-    return render_template('history/history.html', simulations=simulations)
+    return render_template('history/history.html', simulations=simulations, Type=type_enum.Type)
 
 @login_required
 def profile():
@@ -61,28 +61,54 @@ def simulate_sac():
     try:
         data = request.form
         
-        # Validação básica
-        principal_value = float(data.get('principal_value', 0))
-        months = int(data.get('months', 0))
-        interest_rate = float(data.get('interest_rate', 0))
-        
-        if not all([principal_value, months, interest_rate]):
+        user_id = session.get("user_id")
+        type_id = 1  
+
+        principal_value = float(data.get('principal_value'))
+        months = int(data.get('months'))
+        interest_rate = float(data.get('interest_rate'))
+
+        if principal_value is None or months is None or interest_rate is None:
             flash('Todos os campos são obrigatórios', 'error')
             return redirect(url_for('main.simulate'))
-        
-        # Aqui você implementaria a lógica de cálculo SAC
-        result = calculator_controller.sac_system_calculation(principal_value, months, interest_rate)
-        print(result)
-        
-        # Por enquanto, apenas redirecionamos
-        flash('Simulação SAC processada com sucesso!', 'success')
-        return redirect(url_for('main.simulate'))
-        
-    except ValueError:
-        flash('Valores inválidos fornecidos', 'error')
-        return redirect(url_for('main.simulate'))
+
+        new_sac = EntrySAC(
+            user_id=user_id,
+            type_id=type_id,
+            principal_value=principal_value,
+            interest_rate=interest_rate,
+            months=months,
+        )
+        db.session.add(new_sac)
+        db.session.commit()
+
+
+        # Agora chama o controller
+        tabela, total_interest, total_amount = calculator_controller.sac_system_calculation(
+            principal_value,
+            months,
+            interest_rate
+        )
+
+        return render_template(
+            "dashboard.html",
+            tabela=[{
+                "mes": row["mes"],
+                "amortizacao": f"{row['amortizacao']:,.2f}",
+                "juros": f"{row['juros']:,.2f}",
+                "prestacao": f"{row['prestacao']:,.2f}",
+                "saldo_devedor": f"{row['saldo_devedor']:,.2f}"
+            } for row in tabela],
+            capital_inicial=f"{principal_value:,.2f}",
+            juros_totais=f"{total_interest:,.2f}",
+            montante=f"{total_amount:,.2f}",
+            prazo=months,
+            taxa_juros=interest_rate,
+            erro=None
+        )
+
     except Exception as e:
-        flash('Erro ao processar simulação', 'error')
+        flash(f"Erro ao processar simulação: {e}", 'error')
         return redirect(url_for('main.simulate'))
 
 def simulate_price():

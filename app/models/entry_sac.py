@@ -11,7 +11,7 @@ class EntrySAC(db.Model):
 
     principal_value = db.Column(db.Numeric(15, 2), nullable=False)
     interest_rate = db.Column(db.Numeric(5, 2), nullable=False)
-    timeframe = db.Column(db.Integer, nullable=False)
+    months = db.Column(db.Integer, nullable=False)   # <--- corrigido!
     is_monthly = db.Column(db.Boolean, default=True)
     start_date = db.Column(db.Date, nullable=True)
     output_data = db.Column(JSONB)
@@ -25,30 +25,30 @@ class EntrySAC(db.Model):
     def __repr__(self):
         return f"<EntrySAC id={self.id} user={self.user_id}>"
 
-    # ---------- Calculation Methods ---------- #
+    # ----------------- Calculation Methods ----------------- #
 
     @staticmethod
-    def calculate_amortization(principal_value, timeframe):
+    def calculate_amortization(principal_value, months):
         """Cálculo da amortização constante"""
-        return round(principal_value / timeframe, 2)
+        return round(principal_value / months, 2)
 
     @staticmethod
-    def calculate_total_interest(principal_value, timeframe, interest_rate):
+    def calculate_total_interest(principal_value, months, interest_rate):
         """Cálculo total dos juros em um financiamento SAC"""
         total_interest = 0
-        amortization = principal_value / timeframe
-        for _ in range(timeframe):
+        amortization = principal_value / months
+        for _ in range(months):
             interest_frame = principal_value * (interest_rate / 100)
             total_interest += interest_frame
             principal_value -= amortization
         return round(total_interest, 2)
 
     @staticmethod
-    def calculate_payments(principal_value, timeframe, interest_rate):
+    def calculate_payments(principal_value, months, interest_rate):
         """Gera a lista de prestações (amortização + juros)"""
         payments = []
-        amortization = principal_value / timeframe
-        for _ in range(timeframe):
+        amortization = principal_value / months
+        for _ in range(months):
             interest_frame = principal_value * (interest_rate / 100)
             payment = amortization + interest_frame
             payments.append(round(payment, 2))
