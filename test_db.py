@@ -32,7 +32,7 @@ def test_database_connection():
             if tables:
                 print(f"Tabelas encontradas: {tables}")
                 
-                expected_tables = ['users', 'type_operations', 'entry_sac']
+                expected_tables = ['users', 'type_operations', 'entry_sac', 'entry_price', 'entry_credit', 'entry_profit', 'entry_cet', 'entry_fixed_income']
                 existing_expected = [table for table in expected_tables if table in tables]
                 missing_tables = [table for table in expected_tables if table not in tables]
                 

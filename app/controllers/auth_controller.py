@@ -59,7 +59,6 @@ def register_user():
             flash('Email já cadastrado', 'error')
             return redirect(url_for('auth.register'))
         
-        # 🔐 Cria hash da senha
         password_hash = generate_password_hash(password)
         
         user = User(
@@ -85,15 +84,17 @@ def logout_user():
     session.clear()
     flash('Logout realizado com sucesso!', 'success')
     return redirect(url_for('main.index'))
-    """API: Retorna dados do usuário atual"""
+
+def get_current_user():
+    """API: Retorna dados do usuário atual (JSON)"""
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'error': 'Usuário não autenticado'}), 401
-    
+
     user = User.query.get(user_id)
     if not user:
         return jsonify({'error': 'Usuário não encontrado'}), 404
-    
+
     return jsonify({
         'id': user.id,
         'name': user.name,

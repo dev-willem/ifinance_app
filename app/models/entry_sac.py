@@ -11,7 +11,7 @@ class EntrySAC(db.Model):
 
     principal_value = db.Column(db.Numeric(15, 2), nullable=False)
     interest_rate = db.Column(db.Numeric(5, 2), nullable=False)
-    months = db.Column(db.Integer, nullable=False)   # <--- corrigido!
+    months = db.Column(db.Integer, nullable=False)
     is_monthly = db.Column(db.Boolean, default=True)
     start_date = db.Column(db.Date, nullable=True)
     output_data = db.Column(JSONB)

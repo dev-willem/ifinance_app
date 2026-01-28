@@ -1,134 +1,172 @@
-from flask import Blueprint, request, jsonify
-from .models import db, EntrySAC, User, TypeOperation
-from .controllers import *
+from flask import Blueprint, request
+from .models import db
+from .controllers import auth_controller, calculator_controller, main_controller, type_operation_controller, user_controller
 
-routes_bp = Blueprint('main', __name__)
+# Blueprint para páginas principais
+main_bp = Blueprint('main', __name__)
+
+# Blueprint para autenticação (prefixo /auth)
+auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
+
+# Blueprint para API (usuarios / tipos)
+api_bp = Blueprint('api', __name__, url_prefix='/api')
 
 # ---------------------- AUTH ------------------------
 
-@routes_bp.route('/auth/login')
+@auth_bp.route('/login', methods=['GET'])
 def login():
     return auth_controller.login()
 
-@routes_bp.route('/auth/register')
+@auth_bp.route('/register', methods=['GET'])
 def register():
     return auth_controller.register()
 
-@routes_bp.route('/auth/login', methods=['POST'])
+@auth_bp.route('/login', methods=['POST'])
 def login_user():
     return auth_controller.login_user()
 
-@routes_bp.route('/auth/register', methods=['POST'])
+@auth_bp.route('/register', methods=['POST'])
 def register_user():
     return auth_controller.register_user()
 
-@routes_bp.route('/auth/logout')
+# Permitir GET aqui por compatibilidade com links, aceitar POST se preferir
+@auth_bp.route('/logout', methods=['GET', 'POST'])
 def logout_user():
     return auth_controller.logout_user()
 
-# ---------------------- USERS -----------------------
+@auth_bp.route('/me', methods=['GET'])
+def get_current_user():
+    return auth_controller.get_current_user()
 
-@routes_bp.route('/users', methods=['GET'])
+# ---------------------- USERS (API) -----------------------
+
+@api_bp.route('/users', methods=['GET'])
 def get_all_users():
     return user_controller.get_all_users()
 
-@routes_bp.route('/users/<int:user_id>', methods=['GET'])
+@api_bp.route('/users/<int:user_id>', methods=['GET'])
 def get_user_by_id(user_id):
     return user_controller.get_user_by_id(user_id)
 
-@routes_bp.route('/users/<int:user_id>', methods=['PUT'])
+@api_bp.route('/users/<int:user_id>', methods=['PUT'])
 def update_user(user_id):
     return user_controller.update_user(user_id)
 
-@routes_bp.route('/users/<int:user_id>', methods=['DELETE'])
+@api_bp.route('/users/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
     return user_controller.delete_user(user_id)
 
-# ---------------------- TYPES -----------------------
+# ---------------------- TYPES (API) -----------------------
 
-@routes_bp.route('/types', methods=['GET'])
+@api_bp.route('/types', methods=['GET'])
 def get_all_types():
     return type_operation_controller.get_all_types()
 
-@routes_bp.route('/types/<int:type_id>', methods=['GET'])
+@api_bp.route('/types/<int:type_id>', methods=['GET'])
 def get_type_by_id(type_id):
     return type_operation_controller.get_type_by_id(type_id)
 
-@routes_bp.route('/types/<int:type_id>/operations', methods=['GET'])
+@api_bp.route('/types/<int:type_id>/operations', methods=['GET'])
 def get_operations_by_type(type_id):
     return type_operation_controller.get_operations_by_type(type_id)
 
-@routes_bp.route('/types', methods=['POST'])
+@api_bp.route('/types', methods=['POST'])
 def create_type():
     return type_operation_controller.create_type()
 
 # -------------------- MAIN PAGES ---------------------
 
-@routes_bp.route('/')
+@main_bp.route('/', methods=['GET'])
 def index():
     return main_controller.index()
 
-@routes_bp.route('/dashboard')
+@main_bp.route('/dashboard', methods=['GET'])
 def dashboard():
     return main_controller.dashboard()
 
-@routes_bp.route('/simulate')
+@main_bp.route('/simulate', methods=['GET'])
 def simulate():
     return main_controller.simulate()
 
-@routes_bp.route('/history')
+@main_bp.route('/history', methods=['GET'])
 def history():
     return main_controller.history()
 
-@routes_bp.route('/profile')
+@main_bp.route('/profile', methods=['GET'])
 def profile():
     return main_controller.profile()
 
+# Compatibilidade: expor `/login`, `/register` e `/logout` sob o blueprint `main`
+# para preservar referências existentes em templates que usam `main.login` / `main.register`.
+@main_bp.route('/login', methods=['GET', 'POST'], endpoint='login')
+def login_compat():
+    if request.method == 'POST':
+        return auth_controller.login_user()
+    return auth_controller.login()
+
+@main_bp.route('/register', methods=['GET', 'POST'], endpoint='register')
+def register_compat():
+    if request.method == 'POST':
+        return auth_controller.register_user()
+    return auth_controller.register()
+
+@main_bp.route('/logout', methods=['GET', 'POST'], endpoint='logout_user')
+def logout_user():
+    return auth_controller.logout_user()
+
 # -------------------- SIMULATIONS --------------------
 
-@routes_bp.route('/simulate/sac', methods=['POST'])
+@main_bp.route('/simulate/sac', methods=['POST'])
 def simulate_sac():
     return main_controller.simulate_sac()
 
-@routes_bp.route('/simulate/price', methods=['POST'])
+@main_bp.route('/simulate/price', methods=['POST'])
 def simulate_price():
     return main_controller.simulate_price()
 
-@routes_bp.route('/simulate/credit', methods=['POST'])
+@main_bp.route('/simulate/credit', methods=['POST'])
 def simulate_credit():
     return main_controller.simulate_credit()
 
-@routes_bp.route('/simulate/profit', methods=['POST'])
+@main_bp.route('/simulate/profit', methods=['POST'])
 def simulate_profit():
     return main_controller.simulate_profit()
 
-@routes_bp.route('/simulate/cet', methods=['POST'])
+@main_bp.route('/simulate/cet', methods=['POST'])
 def simulate_cet():
     return main_controller.simulate_cet()
 
-@routes_bp.route('/simulation/<int:simulation_id>')
-def view_simulation(simulation_id):
-    return main_controller.view_simulation(simulation_id)
+@main_bp.route('/simulation/<int:type_id>/<int:simulation_id>', methods=['GET'])
+def view_simulation(type_id, simulation_id):
+    return main_controller.view_simulation(type_id, simulation_id)
 
-@routes_bp.route('/update_profile', methods=['POST'])
+@main_bp.route('/simulation/<int:simulation_id>/destroy', methods=['POST'])
+def destroy_simulation(simulation_id):
+    return main_controller.destroy_simulation(simulation_id)
+
+# ---------------------- PROFILES ------------------
+
+@main_bp.route('/update_profile', methods=['POST'])
 def update_profile():
     return main_controller.update_profile()
 
-@routes_bp.route('/change_password', methods=['POST'])
+@main_bp.route('/change_password', methods=['POST'])
 def change_password():
     return main_controller.change_password()
 
-@routes_bp.route('/update_settings', methods=['POST'])
+@main_bp.route('/update_settings', methods=['POST'])
 def update_settings():
     return main_controller.update_settings()
 
 # ---------------------- CALCULATORS ------------------
 
-@routes_bp.route('/calculator/sac', methods=['POST'])
+@main_bp.route('/calculator/sac', methods=['POST'])
 def sac_system_calculation():
-    return calculator_controller.sac_system_calculation()
+    return calculator_controller.sac_system_api()
 
 # ------------------ BLUEPRINT REGISTER ----------------
 
 def register_routes(app):
-    app.register_blueprint(routes_bp)
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(api_bp)
+    app.register_blueprint(main_bp)

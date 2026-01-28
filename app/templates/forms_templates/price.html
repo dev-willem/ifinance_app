@@ -1,35 +1,37 @@
-<h2>TABELA PRICE</h2>
-<form method="post" action="{{ url_for('main.simulate_price') }}">
-  <div class="form-group">
-    <label for="saldo-p">Saldo Devedor (R$):</label>
-    <input
-      type="number"
-      name="principal_value"
-      id="saldo-p"
-      placeholder="Digite o saldo devedor"
-      required
-    />
-  </div>
-  <div class="form-group">
-    <label for="prazo-p">Prazo (meses):</label>
-    <input
-      type="number"
-      name="months"
-      id="prazo-p"
-      placeholder="Digite o prazo em meses"
-      required
-    />
-  </div>
-  <div class="form-group">
-    <label for="juros-p">Taxa de Juros (% a.m.):</label>
-    <input
-      type="number"
-      step="0.01"
-      name="interest_rate"
-      id="juros-p"
-      placeholder="Digite a taxa de juros"
-      required
-    />
-  </div>
-  <button type="submit" class="btn success">Simular</button>
-</form>
+{% from "components/simulation_table.html" import render_simulation_table %}
+
+{% block main_content %}
+<section class="simulation-container">
+    <h2>TABELA PRICE</h2>
+
+    <form method="post" action="{{ url_for('main.simulate_price') }}" class="simulation-form">
+        <div class="form-group">
+            <label for="saldo-p">Saldo Devedor (R$):</label>
+            <input type="number" name="principal_value" id="saldo-p" placeholder="Ex: 50000" required>
+        </div>
+        <div class="form-group">
+            <label for="prazo-p">Prazo (meses):</label>
+            <input type="number" name="months" id="prazo-p" placeholder="Ex: 48" required>
+        </div>
+        <div class="form-group">
+            <label for="juros-p">Taxa de Juros (% a.m.):</label>
+            <input type="number" step="0.01" name="interest_rate" id="juros-p" placeholder="Ex: 1.2" required>
+        </div>
+        <button type="submit" class="btn success">Simular Price</button>
+    </form>
+
+    {% if tabela %}
+        {{ render_simulation_table(
+            titulo="Resultado da Simulação PRICE", 
+            tabela=tabela, 
+            resumo={
+                "capital_inicial": capital_inicial,
+                "juros_totais": juros_totais,
+                "montante": montante,
+                "prazo": prazo,
+                "taxa_juros": taxa_juros
+            }
+        ) }}
+    {% endif %}
+</section>
+{% endblock %}

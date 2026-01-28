@@ -30,7 +30,57 @@ def create_app(config_name=None):
             if tables:
                 print(f"Tabelas encontradas: {tables}")
             else:
-                print("Nenhuma tabela encontrada. Execute o script de inicialização se necessário.")
+                print("Nenhuma tabela encontrada. Criando tabelas automaticamente...")
+                # Importa modelos para garantir que estão registrados no SQLAlchemy
+                from .models import (
+                    User, TypeOperation, EntrySAC, EntryPrice, EntryCredit,
+                    EntryProfit, EntryCET, EntryFixedIncome
+                )
+                try:
+                    db.create_all()
+                    print("Tabelas criadas automaticamente com sucesso!")
+                except Exception as e:
+                    print(f"Falha ao criar tabelas automaticamente: {e}")
+
+            # Garante tipos padrão quando tabelas existem
+            try:
+                from .models import TypeOperation
+                if 'type_operations' in inspector.get_table_names():
+                    if TypeOperation.query.count() == 0:
+                        default_types = [
+                            {
+                                'name': 'Sistema de Amortização Constante (SAC)',
+                                'description': 'Sistema de Amortização Constante (SAC) consiste em parcelas de valor variado que decrescem de forma constante.'
+                            },
+                            {
+                                'name': 'PRICE',
+                                'description': 'Sistema Francês de amortização (parcelas constantes).'
+                            },
+                            {
+                                'name': 'Crédito',
+                                'description': 'Simulação de operações de crédito.'
+                            },
+                            {
+                                'name': 'Lucro',
+                                'description': 'Simulação de resultado de um negócio (lucro).'
+                            },
+                            {
+                                'name': 'CET',
+                                'description': 'Custo Efetivo Total (soma de todos os custos associados).'
+                            },
+                            {
+                                'name': 'Renda Fixa',
+                                'description': 'Simulação de investimentos em renda fixa.'
+                            }
+                        ]
+                        for type_data in default_types:
+                            type_op = TypeOperation(**type_data)
+                            db.session.add(type_op)
+                        db.session.commit()
+                        print("Tipos de operação padrão criados.")
+            except Exception:
+                # Se algo falhar, não interrompe a aplicação
+                pass
             
         except Exception as e:
             print(f"Erro ao conectar com o banco: {e}")

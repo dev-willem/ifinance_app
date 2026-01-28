@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from ..models import db, TypeOperation, EntrySAC
+from ..models import db, TypeOperation, EntrySAC, EntryPrice, EntryCredit, EntryCET, EntryProfit, EntryFixedIncome
 
 def get_all_types():
     """Lista todos os tipos de operação"""
@@ -33,17 +33,32 @@ def get_type_by_id(type_id):
 def get_operations_by_type(type_id):
     """Lista operações por tipo"""
     try:
-        operations = EntrySAC.query.filter_by(type_id=type_id).all()
+        ops = []
+        ops += EntrySAC.query.filter_by(type_id=type_id).all()
+        ops += EntryPrice.query.filter_by(type_id=type_id).all()
+        ops += EntryCredit.query.filter_by(type_id=type_id).all()
+        ops += EntryCET.query.filter_by(type_id=type_id).all()
+        ops += EntryProfit.query.filter_by(type_id=type_id).all()
+        ops += EntryFixedIncome.query.filter_by(type_id=type_id).all()
+
         result = []
-        for op in operations:
-            result.append({
+        for op in ops:
+            item = {
                 'id': op.id,
                 'user_id': op.user_id,
-                'principal_value': float(op.principal_value),
-                'interest_rate': float(op.interest_rate),
-                'months': op.months,
                 'created_at': op.created_at.isoformat()
-            })
+            }
+            # Campos comuns quando presentes
+            if hasattr(op, 'principal_value'):
+                item['principal_value'] = float(op.principal_value)
+            if hasattr(op, 'interest_rate'):
+                item['interest_rate'] = float(op.interest_rate)
+            if hasattr(op, 'months'):
+                item['months'] = op.months
+            if hasattr(op, 'revenue'):
+                item['revenue'] = float(op.revenue)
+
+            result.append(item)
         return jsonify({'operations': result}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500

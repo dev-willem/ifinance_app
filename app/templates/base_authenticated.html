@@ -23,5 +23,16 @@
   .main {
     width: 100%;
   }
+  /* Em telas pequenas removemos a margem lateral da master e adicionamos padding-bottom
+     para que o conteúdo não fique atrás da sidebar fixa inferior. */
+  @media (max-width: 768px) {
+    .master {
+      margin-left: 0;
+    }
+
+    .main {
+      padding-bottom: 88px; /* espaço suficiente para a barra inferior */
+    }
+  }
 </style>
 {% endblock %}

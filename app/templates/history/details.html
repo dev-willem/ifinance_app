@@ -1,3 +1,180 @@
 {% extends "base_authenticated.html" %}
+{% from "components/simulation_table.html" import render_simulation_table %}
 
-<h2>Detalhes do histórico</h2>
+{% block main_content %}
+<div class="container detail-container">
+    <div class="detail-header no-print">
+        <a href="{{ url_for('main.history') }}" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Voltar ao Histórico
+        </a>
+        <div class="header-actions">
+            <button onclick="window.print()" class="btn-action btn-print">
+                <i class="fas fa-print"></i> Imprimir PDF
+            </button>
+        </div>
+    </div>
+
+    <div class="main-title-section">
+        <div class="title-info">
+            <h1>Simulação #{{ simulation.id }}</h1>
+            <p class="text-muted">Realizada em {{ simulation.created_at.strftime('%d/%m/%Y às %H:%M') }}</p>
+        </div>
+        <span class="badge-type {{ simulation.__tablename__ }}">
+            {{ simulation.__tablename__.replace('entry_', '')|upper }}
+        </span>
+    </div>
+
+    <div class="detail-content">
+        {% if simulation.output_data %}
+            {% set tabela_nome = simulation.__tablename__ %}
+
+            <div class="info-section">
+                <h3 class="section-label">Configurações da Simulação</h3>
+                <div class="params-grid">
+                    <div class="param-item">
+                        <small>Valor Principal</small>
+                        <strong>R$ {{ "%.2f"|format(simulation.principal_value or simulation.revenue or 0) }}</strong>
+                    </div>
+                    {% if simulation.interest_rate %}
+                    <div class="param-item">
+                        <small>Taxa de Juros</small>
+                        <strong>{{ simulation.interest_rate }}% <small>a.m.</small></strong>
+                    </div>
+                    {% endif %}
+                    {% if simulation.months %}
+                    <div class="param-item">
+                        <small>Prazo</small>
+                        <strong>{{ simulation.months }} meses</strong>
+                    </div>
+                    {% endif %}
+                    
+                    {# Detalhes específicos para CET #}
+                    {% if tabela_nome == 'entry_cet' %}
+                        <div class="param-item">
+                            <small>Taxas Admin.</small>
+                            <strong>R$ {{ "%.2f"|format(simulation.admin_fees|default(0)) }}</strong>
+                        </div>
+                        <div class="param-item">
+                            <small>Seguro</small>
+                            <strong>R$ {{ "%.2f"|format(simulation.insurance|default(0)) }}</strong>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="info-section">
+                {% if tabela_nome in ['entry_sac', 'entry_price', 'entry_credit', 'entry_cet'] %}
+                    
+                    {% set juros_valor = simulation.output_data.get('total_interest') or simulation.output_data.get('total_costs') or 0 %}
+                    {% set resumo = {
+                        'capital_inicial': "%.2f"|format(simulation.principal_value|default(0)),
+                        'juros_totais': "%.2f"|format(juros_valor),
+                        'montante': "%.2f"|format(simulation.output_data.get('total_amount', 0)),
+                        'prazo': simulation.months,
+                        'taxa_juros': simulation.interest_rate
+                    } %}
+                    
+                    {% if simulation.output_data.cet_percent %}
+                        <div class="cet-card-highlight">
+                            <div class="cet-label">Custo Efetivo Total (CET)</div>
+                            <div class="cet-value">{{ simulation.output_data.cet_percent }}% <small>ao ano</small></div>
+                        </div>
+                    {% endif %}
+
+                    {{ render_simulation_table(tabela_nome|replace('entry_', '')|upper, simulation.output_data.tabela, resumo) }}
+
+                {% elif tabela_nome == 'entry_profit' %}
+                    <div class="profit-analysis">
+                        <h3 class="section-label">Análise de Lucratividade</h3>
+                        <div class="resumo-grid">
+                            <div class="resumo-card highlight-green">
+                                <i class="fas fa-chart-line"></i>
+                                <small>Lucro Líquido</small>
+                                <span>R$ {{ "%.2f"|format(simulation.output_data.get('net_profit', 0)) }}</span>
+                            </div>
+                            <div class="resumo-card highlight-blue">
+                                <i class="fas fa-percentage"></i>
+                                <small>Margem Líquida</small>
+                                <span>{{ simulation.output_data.get('margin', 0) }}%</span>
+                            </div>
+                            <div class="resumo-card">
+                                <small>Impostos</small>
+                                <span>R$ {{ "%.2f"|format(simulation.taxes|default(0)) }}</span>
+                            </div>
+                            <div class="resumo-card">
+                                <small>Custos Variáveis</small>
+                                <span>R$ {{ "%.2f"|format(simulation.variable_costs|default(0)) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+        {% else %}
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i> Dados detalhados não encontrados.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ super() }}
+<style>
+    :root {
+        --primary-green: #006400;
+        --soft-gray: #f8f9fa;
+        --border-color: #e0e0e0;
+    }
+
+    .detail-container { width: 80%; padding: 30px 15px; max-width: 1100px; margin: 0 auto; }
+    
+    /* Header */
+    .detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    .btn-back { color: var(--primary-green); text-decoration: none; font-weight: 600; transition: 0.3s; }
+    .btn-back:hover { opacity: 0.7; }
+    .btn-action { padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border-color); cursor: pointer; background: white; font-weight: 500; }
+    
+    /* Title Section */
+    .main-title-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; border-bottom: 2px solid var(--soft-gray); padding-bottom: 20px; }
+    .main-title-section h1 { margin: 0; font-size: 2rem; color: #333; }
+    
+    /* Badges */
+    .badge-type { padding: 8px 16px; border-radius: 50px; font-weight: 800; font-size: 0.85rem; color: white; }
+    .entry_sac { background: #2e7d32; }
+    .entry_price { background: #1565c0; }
+    .entry_cet { background: #ef6c00; }
+    .entry_profit { background: #6a1b9a; }
+    .entry_credit { background: #37474f; }
+
+    /* Sections */
+    .info-section { margin-bottom: 40px; }
+    .section-label { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: #777; margin-bottom: 20px; border-left: 4px solid var(--primary-green); padding-left: 15px; }
+    
+    /* Params Grid */
+    .params-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; background: var(--soft-gray); padding: 25px; border-radius: 12px; }
+    .param-item small { display: block; color: #666; margin-bottom: 5px; }
+    .param-item strong { font-size: 1.1rem; color: #222; }
+
+    /* CET Highlight */
+    .cet-card-highlight { background: linear-gradient(135deg, #fff3e0, #ffe0b2); padding: 20px; border-radius: 12px; margin-bottom: 25px; text-align: center; border: 1px solid #ffcc80; }
+    .cet-label { font-weight: 600; color: #e65100; text-transform: uppercase; font-size: 0.85rem; }
+    .cet-value { font-size: 2.5rem; font-weight: 900; color: #ef6c00; }
+
+    /* Profit Cards */
+    .resumo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+    .resumo-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; position: relative; overflow: hidden; }
+    .resumo-card i { position: absolute; right: -10px; bottom: -10px; font-size: 4rem; opacity: 0.05; }
+    .resumo-card small { color: #888; text-transform: uppercase; font-weight: 600; font-size: 0.75rem; }
+    .resumo-card span { font-size: 1.5rem; font-weight: 800; margin-top: 10px; }
+    .highlight-green { border-top: 5px solid #2e7d32; }
+    .highlight-blue { border-top: 5px solid #1565c0; }
+
+    @media print {
+        .no-print { display: none !important; }
+        .detail-container { width: 100%; max-width: 100%; }
+        .detail-content { box-shadow: none; border: none; }
+    }
+</style>
+{% endblock %}

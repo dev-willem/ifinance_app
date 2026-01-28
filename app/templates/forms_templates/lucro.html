@@ -43,3 +43,16 @@
   </div>
   <button type="submit" class="btn success">Simular</button>
 </form>
+
+{% if lucro %}
+<hr />
+<h3>Resultado da Simulação de Lucro</h3>
+<p><b>Receita:</b> R$ {{ lucro.revenue }}</p>
+<p><b>Custos Fixos:</b> R$ {{ lucro.fixed_costs }}</p>
+<p><b>Custos Variáveis:</b> R$ {{ lucro.variable_costs }}</p>
+<p><b>Impostos:</b> R$ {{ lucro.taxes }}</p>
+<p><b>Lucro Bruto:</b> R$ {{ lucro.gross_profit }}</p>
+<p><b>Lucro Líquido:</b> R$ {{ lucro.net_profit }}</p>
+<p><b>Margem Bruta:</b> {{ lucro.margin_gross }} %</p>
+<p><b>Margem Líquida:</b> {{ lucro.margin_net }} %</p>
+{% endif %}

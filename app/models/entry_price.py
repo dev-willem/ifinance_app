@@ -1,0 +1,24 @@
+from datetime import datetime
+from . import db
+from sqlalchemy.dialects.postgresql import JSONB
+
+class EntryPrice(db.Model):
+    __tablename__ = 'entry_price'
+
+    id = db.Column(db.BigInteger, primary_key=True)
+    user_id = db.Column(db.BigInteger, db.ForeignKey('users.id'), nullable=False)
+    type_id = db.Column(db.Integer, db.ForeignKey('type_operations.id'), nullable=False)
+
+    principal_value = db.Column(db.Numeric(15, 2), nullable=False)
+    interest_rate = db.Column(db.Numeric(5, 2), nullable=False)
+    months = db.Column(db.Integer, nullable=False)
+    output_data = db.Column(JSONB)
+    created_at = db.Column(db.DateTime, default=datetime.now)
+    updated_at = db.Column(db.DateTime, default=datetime.now)
+    deleted_at = db.Column(db.DateTime, nullable=True)
+
+    user = db.relationship('User')
+    type_operation = db.relationship('TypeOperation')
+
+    def __repr__(self):
+        return f"<EntryPrice id={self.id} user={self.user_id}>"

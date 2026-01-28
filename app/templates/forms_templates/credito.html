@@ -1,35 +1,37 @@
-<h2>SIMULAÇÃO DE CRÉDITO</h2>
-<form method="post" action="{{ url_for('main.simulate_credit') }}">
-  <div class="form-group">
-    <label for="valor-c">Valor do Empréstimo (R$):</label>
-    <input
-      type="number"
-      name="principal_value"
-      id="valor-c"
-      placeholder="Digite o valor"
-      required
-    />
-  </div>
-  <div class="form-group">
-    <label for="prazo-c">Prazo (meses):</label>
-    <input
-      type="number"
-      name="months"
-      id="prazo-c"
-      placeholder="Digite o prazo em meses"
-      required
-    />
-  </div>
-  <div class="form-group">
-    <label for="juros-c">Taxa de Juros (% a.m.):</label>
-    <input
-      type="number"
-      step="0.01"
-      name="interest_rate"
-      id="juros-c"
-      placeholder="Digite a taxa de juros"
-      required
-    />
-  </div>
-  <button type="submit" class="btn success">Simular</button>
-</form>
+{% from "components/simulation_table.html" import render_simulation_table %}
+
+{% block main_content %}
+<section class="simulation-container">
+    <h2>SIMULAÇÃO DE CRÉDITO</h2>
+
+    <form method="post" action="{{ url_for('main.simulate_credit') }}" class="simulation-form">
+        <div class="form-group">
+            <label for="valor-c">Valor do Empréstimo (R$):</label>
+            <input type="number" name="principal_value" id="valor-c" placeholder="Ex: 10000" required>
+        </div>
+        <div class="form-group">
+            <label for="prazo-c">Prazo (meses):</label>
+            <input type="number" name="months" id="prazo-c" placeholder="Ex: 24" required>
+        </div>
+        <div class="form-group">
+            <label for="juros-c">Taxa de Juros (% a.m.):</label>
+            <input type="number" step="0.01" name="interest_rate" id="juros-c" placeholder="Ex: 2.5" required>
+        </div>
+        <button type="submit" class="btn success">Simular Crédito</button>
+    </form>
+
+    {% if tabela %}
+        {{ render_simulation_table(
+            titulo="Resultado da Simulação - Crédito", 
+            tabela=tabela, 
+            resumo={
+                "capital_inicial": capital_inicial,
+                "juros_totais": juros_totais,
+                "montante": montante,
+                "prazo": prazo,
+                "taxa_juros": taxa_juros
+            }
+        ) }}
+    {% endif %}
+</section>
+{% endblock %}

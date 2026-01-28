@@ -89,5 +89,64 @@
     text-align: center;
     border-radius: 5px;
   }
+
+  /* Mobile: transformar sidebar em barra inferior */
+  @media (max-width: 768px) {
+    .sidebar {
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      top: auto;
+      padding: 8px 12px;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+      background: #ffffff;
+      z-index: 1000;
+    }
+
+    .sidebar > div:first-child {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .profile {
+      margin-bottom: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .profile img {
+      width: 40px;
+      height: 40px;
+    }
+
+    .menu {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin: 0;
+    }
+
+    .menu a {
+      padding: 8px 10px;
+      background: transparent;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    .menu a span:first-child { margin-left: 0; }
+
+    .logout { display: none; }
+
+    /* garante que o conteúdo principal tenha espaço inferior suficiente */
+    .master { margin-left: 0; }
+  }
 </style>
 {% endblock %}

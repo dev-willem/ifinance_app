@@ -54,6 +54,14 @@
                                     SAC
                                 {% elif sim.type_id == Type.PRICE.value %}
                                     PRICE
+                                {% elif sim.type_id == Type.PROFIT.value %}
+                                    LUCRO
+                                {% elif sim.type_id == Type.CREDIT.value %}
+                                    CRÉDITO
+                                {% elif sim.type_id == Type.CET.value %}
+                                    CET
+                                {% elif sim.type_id == Type.FIXED_INCOME.value %}
+                                    RENDA FIXA
                                 {% else %}
                                     N
                                 {% endif %}
@@ -64,7 +72,7 @@
                             <td>{{ sim.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
                             <td>
                                 <div class="action-buttons">
-                                    <button class="btn-small btn-view" onclick="viewSimulation({{ sim.id }})">Ver</button>
+                                    <button class="btn-small btn-view" onclick="viewSimulation({{ sim.type_id }}, {{ sim.id }})">Ver</button>
                                     <button class="btn-small btn-delete" onclick="deleteSimulation({{ sim.id }})">Excluir</button>
                                 </div>
                             </td>
@@ -87,30 +95,23 @@
 
 {% block extra_js %}
 <script>
-    function viewSimulation(id) {
-        // Redirecionar para visualização da simulação
-        window.location.href = `/simulation/${id}`;
+    // Função utilitária para normalizar strings (remove acentos e deixa em minusculo)
+    const normalizeStr = (str) => 
+        str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+    function viewSimulation(typeId, id) {
+        window.location.href = `/simulation/${typeId}/${id}`;
     }
 
     function deleteSimulation(id) {
         if (confirm('Tem certeza que deseja excluir esta simulação?')) {
-            fetch(`/api/operations/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
+            // Se você seguiu o conselho anterior, passe também o type_id aqui
+            fetch(`/simulation/${id}/destroy`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
             })
-            .then(response => {
-                if (response.ok) {
-                    location.reload();
-                } else {
-                    alert('Erro ao excluir simulação');
-                }
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                alert('Erro ao excluir simulação');
-            });
+            .then(response => response.ok ? location.reload() : alert('Erro ao excluir'))
+            .catch(err => console.error('Erro:', err));
         }
     }
 
@@ -119,16 +120,17 @@
     document.getElementById('filter-date').addEventListener('change', filterTable);
 
     function filterTable() {
-        const typeFilter = document.getElementById('filter-type').value.toLowerCase();
+        const typeFilter = normalizeStr(document.getElementById('filter-type').value);
         const dateFilter = document.getElementById('filter-date').value;
         
         const rows = document.querySelectorAll('.history-table tbody tr');
         
         rows.forEach(row => {
-            if (row.querySelector('.no-data')) return; // Skip no-data row
+            if (row.querySelector('.no-data')) return;
             
-            const typeCell = row.cells[1].textContent.toLowerCase();
-            const dateCell = row.cells[5].textContent;
+            // Pega o texto do Tipo e remove acentos para comparar
+            const typeCell = normalizeStr(row.cells[1].textContent);
+            const dateCell = row.cells[5].textContent; // DD/MM/YYYY
             
             let show = true;
             
@@ -136,8 +138,10 @@
                 show = false;
             }
             
-            if (dateFilter && !dateCell.includes(dateFilter.split('-').reverse().join('/'))) {
-                show = false;
+            // Converte a data do input (YYYY-MM-DD) para o formato da tabela (DD/MM/YYYY)
+            if (dateFilter) {
+                const formattedFilterDate = dateFilter.split('-').reverse().join('/');
+                if (!dateCell.includes(formattedFilterDate)) show = false;
             }
             
             row.style.display = show ? '' : 'none';

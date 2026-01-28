@@ -22,7 +22,7 @@ def init_database():
             inspector = db.inspect(db.engine)
             existing_tables = inspector.get_table_names()
             
-            expected_tables = ['users', 'type_operations', 'entry_sac']
+            expected_tables = ['users', 'type_operations', 'entry_sac', 'entry_price', 'entry_credit', 'entry_profit', 'entry_cet', 'entry_fixed_income']
             existing_expected = [table for table in expected_tables if table in existing_tables]
             
             if existing_expected:
