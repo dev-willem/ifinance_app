@@ -1,6 +1,6 @@
 from datetime import datetime
 from . import db
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import JSON
 
 class EntryPrice(db.Model):
     __tablename__ = 'entry_price'
@@ -12,7 +12,7 @@ class EntryPrice(db.Model):
     principal_value = db.Column(db.Numeric(15, 2), nullable=False)
     interest_rate = db.Column(db.Numeric(5, 2), nullable=False)
     months = db.Column(db.Integer, nullable=False)
-    output_data = db.Column(JSONB)
+    output_data = db.Column(JSON)
     created_at = db.Column(db.DateTime, default=datetime.now)
     updated_at = db.Column(db.DateTime, default=datetime.now)
     deleted_at = db.Column(db.DateTime, nullable=True)

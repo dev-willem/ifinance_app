@@ -2,6 +2,7 @@ import os
 from flask import Flask
 from .models import db
 from .config import config
+from sqlalchemy import text, inspect
 
 def create_app(config_name=None):
     if config_name is None:
@@ -10,87 +11,75 @@ def create_app(config_name=None):
     app = Flask(__name__)
     app.config.from_object(config[config_name])
     
+    # Validação simples de config
     try:
         config[config_name].validate_database_config()
-    except ValueError as e:
-        print(f"Erro de configuração: {e}")
+    except (ValueError, AttributeError) as e:
+        app.logger.error(f"Erro de configuração: {e}")
     
     db.init_app(app)
     register_blueprints(app)
     
     with app.app_context():
-        try:
-            from sqlalchemy import text
-            with db.engine.connect() as connection:
-                connection.execute(text('SELECT 1'))
-            print("Conexão com banco de dados estabelecida com sucesso!")
-            
-            inspector = db.inspect(db.engine)
-            tables = inspector.get_table_names()
-            if tables:
-                print(f"Tabelas encontradas: {tables}")
-            else:
-                print("Nenhuma tabela encontrada. Criando tabelas automaticamente...")
-                # Importa modelos para garantir que estão registrados no SQLAlchemy
-                from .models import (
-                    User, TypeOperation, EntrySAC, EntryPrice, EntryCredit,
-                    EntryProfit, EntryCET, EntryFixedIncome
-                )
-                try:
-                    db.create_all()
-                    print("Tabelas criadas automaticamente com sucesso!")
-                except Exception as e:
-                    print(f"Falha ao criar tabelas automaticamente: {e}")
-
-            # Garante tipos padrão quando tabelas existem
-            try:
-                from .models import TypeOperation
-                if 'type_operations' in inspector.get_table_names():
-                    if TypeOperation.query.count() == 0:
-                        default_types = [
-                            {
-                                'name': 'Sistema de Amortização Constante (SAC)',
-                                'description': 'Sistema de Amortização Constante (SAC) consiste em parcelas de valor variado que decrescem de forma constante.'
-                            },
-                            {
-                                'name': 'PRICE',
-                                'description': 'Sistema Francês de amortização (parcelas constantes).'
-                            },
-                            {
-                                'name': 'Crédito',
-                                'description': 'Simulação de operações de crédito.'
-                            },
-                            {
-                                'name': 'Lucro',
-                                'description': 'Simulação de resultado de um negócio (lucro).'
-                            },
-                            {
-                                'name': 'CET',
-                                'description': 'Custo Efetivo Total (soma de todos os custos associados).'
-                            },
-                            {
-                                'name': 'Renda Fixa',
-                                'description': 'Simulação de investimentos em renda fixa.'
-                            }
-                        ]
-                        for type_data in default_types:
-                            type_op = TypeOperation(**type_data)
-                            db.session.add(type_op)
-                        db.session.commit()
-                        print("Tipos de operação padrão criados.")
-            except Exception:
-                # Se algo falhar, não interrompe a aplicação
-                pass
-            
-        except Exception as e:
-            print(f"Erro ao conectar com o banco: {e}")
-            print("Verifique se o PostgreSQL está rodando e as credenciais estão corretas")
+        setup_database(app)
     
     return app
+
+def setup_database(app):
+    """Encapsula a lógica de inicialização do banco de dados"""
+    try:
+        # Testa a conexão
+        db.session.execute(text('SELECT 1'))
+        print("✅ Conexão com MySQL estabelecida com sucesso!")
+        
+        inspector = inspect(db.engine)
+        tables = inspector.get_table_names()
+        
+        # Importa modelos aqui para o SQLAlchemy "conhecê-los"
+        from .models import (
+            User, TypeOperation, EntrySAC, EntryPrice, EntryCredit,
+            EntryProfit, EntryCET, EntryFixedIncome
+        )
+
+        if not tables:
+            print("Empty DB: Criando tabelas automaticamente...")
+            db.create_all()
+            print("Tabelas criadas com sucesso!")
+            # Atualiza a lista de tabelas após criação
+            tables = inspect(db.engine).get_table_names()
+
+        # Seed de dados iniciais (TypeOperation)
+        if 'type_operations' in tables:
+            seed_type_operations()
+
+    except Exception as e:
+        print(f"❌ Erro ao conectar com o banco de dados: {e}")
+        print("Dica: Verifique se o MySQL está rodando e se a URL de conexão está correta.")
+
+def seed_type_operations():
+    """Popula a tabela de tipos se estiver vazia"""
+    from .models import TypeOperation
+    try:
+        if db.session.query(TypeOperation).count() == 0:
+            default_types = [
+                {'name': 'SAC', 'description': 'Sistema de Amortização Constante.'},
+                {'name': 'PRICE', 'description': 'Sistema Francês de amortização.'},
+                {'name': 'Crédito', 'description': 'Simulação de operações de crédito.'},
+                {'name': 'Lucro', 'description': 'Simulação de resultado de negócio.'},
+                {'name': 'CET', 'description': 'Custo Efetivo Total.'},
+                {'name': 'Renda Fixa', 'description': 'Investimentos em renda fixa.'}
+            ]
+            for type_data in default_types:
+                db.session.add(TypeOperation(**type_data))
+            db.session.commit()
+            print("🌱 Dados iniciais de TypeOperation inseridos.")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Erro ao inserir sementes: {e}")
 
 def register_blueprints(app):
     try:
         from .routes import register_routes
         register_routes(app)
     except ImportError as e:
-        print(f"Aviso: Não foi possível importar rotas: {e}")
+        app.logger.warning(f"Aviso: Não foi possível importar rotas: {e}")
