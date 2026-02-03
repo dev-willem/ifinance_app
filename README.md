@@ -1,5 +1,5 @@
 # IFinance - Sistema de Simuladores Financeiros 
-
+ 
 Sistema Flask completo com simuladores financeiros para SAC, PRICE, Crédito, Lucro e CET. Interface web moderna com autenticação de usuários.
 
 ## ✨ Funcionalidades
