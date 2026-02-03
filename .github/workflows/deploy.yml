@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch: # Permite rodar manualmente pelo painel do GitHub
 
 permissions:
   contents: read
-  packages: write  # OBRIGATÓRIO para GHCR
+  packages: write
 
 jobs:
   build:
@@ -24,8 +25,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Preparar nome da imagem (lowercase)
+        id: image_name
+        run: |
+          # Transforma o nome do repositório em minúsculo
+          IMAGE_ID=ghcr.io/${{ github.repository }}
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          echo "IMAGE_TAG=$IMAGE_ID:latest" >> $GITHUB_OUTPUT
+
       - name: Build e push da imagem
         uses: docker/build-push-action@v5
         with:
+          context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}:latest
+          tags: ${{ steps.image_name.outputs.IMAGE_TAG }}
