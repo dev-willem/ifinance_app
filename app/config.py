@@ -1,47 +1,70 @@
 import os
-from dotenv import load_dotenv
 from urllib.parse import quote_plus
+from dotenv import load_dotenv
 
 load_dotenv()
 
+
+def env(key: str, default=None):
+    """Helper para acessar variáveis de ambiente."""
+    return os.getenv(key, default)
+
+
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
-    
-    # Valores padrão atualizados para MySQL
-    DB_HOST = os.environ.get('DB_HOST') or 'localhost'
-    DB_PORT = os.environ.get('DB_PORT') or '3306' # MySQL usa 3306
-    DB_NAME = os.environ.get('DB_NAME') or 'finance_db'
-    DB_USER = os.environ.get('DB_USER') or 'root'
-    DB_PASSWORD = os.environ.get('DB_PASSWORD') or ''
-    
-    # ALTERAÇÃO CRUCIAL: Troca de postgresql:// para mysql+pymysql://
-    SQLALCHEMY_DATABASE_URI = (
-        f"mysql+pymysql://{quote_plus(DB_USER)}:{quote_plus(DB_PASSWORD)}"
-        f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    )
-    
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
-    @staticmethod
-    def validate_database_config():
-        required_vars = ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD']
-        missing_vars = [var for var in required_vars if not os.environ.get(var)]
-        
-        if missing_vars:
-            raise ValueError(f"Variáveis de ambiente obrigatórias não encontradas: {', '.join(missing_vars)}")
-        
-        return True
-    
-    DEBUG = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    """Configuração base da aplicação."""
+
+    SECRET_KEY: str = env("SECRET_KEY", "dev-secret-key-change-in-production")
+
+    DB_HOST: str = env("DB_HOST", "localhost")
+    DB_PORT: str = env("DB_PORT", "3306")
+    DB_NAME: str = env("DB_NAME", "finance_db")
+    DB_USER: str = env("DB_USER", "root")
+    DB_PASSWORD: str = env("DB_PASSWORD", "")
+
+    SQLALCHEMY_TRACK_MODIFICATIONS: bool = False
+
+    DEBUG: bool = env("FLASK_DEBUG", "false").lower() == "true"
+
+    @classmethod
+    def build_database_uri(cls) -> str:
+        """Constrói a URI de conexão com o banco."""
+        user = quote_plus(cls.DB_USER)
+        password = quote_plus(cls.DB_PASSWORD)
+
+        return (
+            f"mysql+pymysql://{user}:{password}"
+            f"@{cls.DB_HOST}:{cls.DB_PORT}/{cls.DB_NAME}"
+        )
+
+    SQLALCHEMY_DATABASE_URI: str = env("DATABASE_URL") or build_database_uri()
+
+    @classmethod
+    def validate_database_config(cls) -> None:
+        """Valida variáveis essenciais de banco."""
+        required = ["DB_HOST", "DB_PORT", "DB_NAME", "DB_USER"]
+
+        missing = [var for var in required if not env(var)]
+
+        if missing:
+            raise ValueError(
+                f"Variáveis obrigatórias ausentes: {', '.join(missing)}"
+            )
+
 
 class DevelopmentConfig(Config):
+    """Configuração de desenvolvimento."""
+
     DEBUG = True
 
+
 class ProductionConfig(Config):
+    """Configuração de produção."""
+
     DEBUG = False
 
+
 config = {
-    'development': DevelopmentConfig,
-    'production': ProductionConfig,
-    'default': DevelopmentConfig
+    "development": DevelopmentConfig,
+    "production": ProductionConfig,
+    "default": DevelopmentConfig,
 }
